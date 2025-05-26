@@ -1,5 +1,6 @@
 import operator
 import json
+import requests
 
 class ToolBox:
     def __init__(self):
@@ -119,3 +120,60 @@ def reverse_string(input_string):
     result = f"The reversed string is: {reversed_string}"
     
     return result
+
+def get_bangkok_weather(input_str=""):
+    """
+    Get the current weather conditions in Bangkok, Thailand.
+
+    Parameters:
+    input_str (str): Optional input (not used, can be empty string or any value)
+
+    Returns:
+    str: Current weather information for Bangkok including temperature, humidity, and conditions.
+    """
+    try:
+        # Using OpenWeatherMap free API for Bangkok
+        # Using a free weather API that doesn't require API key
+        api_url = "https://api.open-meteo.com/v1/forecast"
+        params = {
+            "latitude": 13.7563,  # Bangkok latitude
+            "longitude": 100.5018,  # Bangkok longitude
+            "current": "temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m",
+            "timezone": "Asia/Bangkok"
+        }
+        
+        response = requests.get(api_url, params=params, timeout=10)
+        response.raise_for_status()
+        
+        data = response.json()
+        current = data.get('current', {})
+        
+        # Weather code mapping (simplified)
+        weather_codes = {
+            0: "Clear sky",
+            1: "Mainly clear", 2: "Partly cloudy", 3: "Overcast",
+            45: "Fog", 48: "Rime fog",
+            51: "Light drizzle", 53: "Moderate drizzle", 55: "Dense drizzle",
+            61: "Slight rain", 63: "Moderate rain", 65: "Heavy rain",
+            80: "Slight rain showers", 81: "Moderate rain showers", 82: "Violent rain showers",
+            95: "Thunderstorm", 96: "Thunderstorm with hail", 99: "Thunderstorm with heavy hail"
+        }
+        
+        temperature = current.get('temperature_2m', 'N/A')
+        humidity = current.get('relative_humidity_2m', 'N/A')
+        wind_speed = current.get('wind_speed_10m', 'N/A')
+        weather_code = current.get('weather_code', 0)
+        weather_desc = weather_codes.get(weather_code, "Unknown conditions")
+        
+        result = f"Current weather in Bangkok, Thailand:\n"
+        result += f"Temperature: {temperature}°C\n"
+        result += f"Humidity: {humidity}%\n"
+        result += f"Wind Speed: {wind_speed} km/h\n"
+        result += f"Conditions: {weather_desc}"
+        
+        return result
+        
+    except requests.RequestException as e:
+        return f"Error fetching weather data: Unable to connect to weather service. {str(e)}"
+    except Exception as e:
+        return f"Error processing weather data: {str(e)}"

@@ -1,9 +1,10 @@
 import requests
 import json
+from ..config.config import OLLAMA_ENDPOINT
 
 class OllamaModel:
     def __init__(self, model, system_prompt, temperature, stop = None) -> None:
-        self.model_endpoint = "http://localhost:8000/api/generate"
+        self.model_endpoint = OLLAMA_ENDPOINT
         self.model = model
         self.system_prompt = system_prompt
         self.temperature = temperature

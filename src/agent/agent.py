@@ -1,6 +1,6 @@
 import json
-from tools import ToolBox
-from llm import OllamaModel
+from ..tools.tools import ToolBox
+from ..llm.llm import OllamaModel
 from termcolor import colored
 
 AGENT_SYSTEM_PROMPT_TEMPLATE = """
@@ -32,13 +32,23 @@ TOOLS AND WHEN TO USE THEM:
      Input: "What is the reverse of Python?"
      Output: {{"tool_choice": "reverse_string", "tool_input": "Python"}}
 
-3. no tool: Use for general conversation and questions
+3. get_bangkok_weather: Use for ANY request about weather in Bangkok
+   - Input format: Empty string or any value (input is ignored)
+   - ALWAYS use this tool when user asks about weather, temperature, conditions in Bangkok
+   - Example inputs and outputs:
+     Input: "What's the weather in Bangkok?"
+     Output: {{"tool_choice": "get_bangkok_weather", "tool_input": ""}}
+     
+     Input: "How's the temperature in Bangkok today?"
+     Output: {{"tool_choice": "get_bangkok_weather", "tool_input": ""}}
+
+4. no tool: Use for general conversation and questions
    - Example inputs and outputs:
      Input: "Who are you?"
-     Output: {{"tool_choice": "no tool", "tool_input": "I am an AI assistant that can help you with calculations, reverse text, and answer questions. I can perform mathematical operations and reverse strings. How can I help you today?"}}
+     Output: {{"tool_choice": "no tool", "tool_input": "I am an AI assistant that can help you with calculations, reverse text, get Bangkok weather, and answer questions. I can perform mathematical operations, reverse strings, and check current weather conditions in Bangkok. How can I help you today?"}}
      
      Input: "How are you?"
-     Output: {{"tool_choice": "no tool", "tool_input": "I'm functioning well, thank you for asking! I'm here to help you with calculations, text reversal, or answer any questions you might have."}}
+     Output: {{"tool_choice": "no tool", "tool_input": "I'm functioning well, thank you for asking! I'm here to help you with calculations, text reversal, Bangkok weather information, or answer any questions you might have."}}
 
 STRICT RULES:
 1. For questions about identity, capabilities, or feelings:
@@ -55,6 +65,10 @@ STRICT RULES:
    - ALWAYS use "basic_calculator"
    - Extract the numbers and operation
    - Convert text numbers to digits
+
+4. For ANY Bangkok weather requests:
+   - ALWAYS use "get_bangkok_weather"
+   - Input can be empty string or any value
 
 Here is a list of your tools along with their descriptions:
 {tool_descriptions}
